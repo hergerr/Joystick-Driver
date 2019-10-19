@@ -21,6 +21,7 @@ namespace PadPS4
             sticks = GetSticks();
             timer1.Enabled = true;
         }
+
         DirectInput Input = new DirectInput();
         SlimDX.DirectInput.Joystick stick;
         Joystick[] sticks;
@@ -29,6 +30,11 @@ namespace PadPS4
         int yValue = 0;
         int xValue = 0;
         int zValue = 0;
+
+        Rectangle rect;
+        Point LocationXY;
+        Point LocationX1Y1;
+        bool isMouseDown = false;
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern void mouse_event(uint flag, uint _x, uint _y, uint btn, uint exInfo);
@@ -57,8 +63,8 @@ namespace PadPS4
                 }
                 catch (DirectInputException)
                 {
-
                 }
+
             }
             return sticks.ToArray();
         }
@@ -71,7 +77,7 @@ namespace PadPS4
             yValue = state.Y;
             xValue = state.X;
             zValue = state.Z;
-            MouseMove(xValue, yValue);
+            MouseMoves(xValue, yValue);
 
             bool[] buttons = state.GetButtons();
 
@@ -101,9 +107,9 @@ namespace PadPS4
             Joystick[] joystick = GetSticks();
         }
 
-        public void MouseMove(int posx, int posy) {
+        public void MouseMoves(int posx, int posy) {
             Cursor.Position = new Point(Cursor.Position.X + posx/3, Cursor.Position.Y + posy/3);
-            Cursor.Clip = new Rectangle(this.Location, this.Size);
+            //Cursor.Clip = new Rectangle(this.Location, this.Size);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
@@ -112,6 +118,49 @@ namespace PadPS4
             {
                 stickHandle(sticks[i], i);
             }
+        }
+
+        private void Form1_MouseDown(object sender, MouseEventArgs e)
+        {
+            isMouseDown = true;
+            LocationXY = e.Location;
+        }
+
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isMouseDown)
+            {
+                LocationX1Y1 = e.Location;
+                Refresh();
+            }
+        }
+
+        private void Form1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (isMouseDown)
+            {
+                LocationX1Y1 = e.Location;
+                isMouseDown = false;
+            }
+        }
+
+        private void Form1_Paint(object sender, PaintEventArgs e)
+        {
+            if(rect != null)
+            {
+                e.Graphics.DrawRectangle(Pens.Red, GetRect());
+            }
+        }
+
+        private Rectangle GetRect()
+        {
+            rect = new Rectangle();
+            rect.X = Math.Min(LocationXY.X, LocationX1Y1.X);
+            rect.Y = Math.Min(LocationXY.Y, LocationX1Y1.Y);
+            rect.Width = Math.Abs(LocationXY.X - LocationX1Y1.X);
+            rect.Height = Math.Abs(LocationXY.Y - LocationX1Y1.Y);
+
+            return rect;
         }
     }
 }
