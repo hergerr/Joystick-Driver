@@ -19,10 +19,15 @@ namespace PadPS4
             InitializeComponent();
             GetSticks();
             sticks = GetSticks();
+
+            // uruchomienie timera umozliwia odswiezanie
             timer1.Enabled = true;
         }
 
+        // obiekt directInput
         DirectInput Input = new DirectInput();
+
+        // obiekt joysticka
         SlimDX.DirectInput.Joystick stick;
         Joystick[] sticks;
         bool mouseClicked = false;
@@ -42,6 +47,7 @@ namespace PadPS4
         private const int MOUSEEVENT_LEFTUP = 0x04;
         
 
+        // szuka podlaczonego do komputera kontrolera/joisticka
         public Joystick[] GetSticks()
         {
             List<SlimDX.DirectInput.Joystick> sticks = new List<SlimDX.DirectInput.Joystick>();
@@ -66,9 +72,11 @@ namespace PadPS4
                 }
 
             }
+            // kopiuje elementy z listy do tablicy
             return sticks.ToArray();
         }
 
+        // pobiera stan kontrolera i ustawia wartosci przyciskow w zmiennych
         void stickHandle(Joystick stick, int id)
         {
             JoystickState state = new JoystickState();
@@ -81,15 +89,21 @@ namespace PadPS4
 
             bool[] buttons = state.GetButtons();
 
-            if(id == 0)
+            // przycisk x na ps4
+            if (id == 0)
             {
+                // true, jesli jest nacisniety
                 if (buttons[0])
                 {
                     if (mouseClicked == false)
                     {
+                        // wywolanie klika myszki i ustawienie odpowiedniej flagi klikniecia
                         mouse_event(MOUSEEVENT_LEFTDOWN, 0, 0, 0, 0);
                         mouseClicked = true;
                     }
+                } else if (buttons[1]) // kolejne guziki
+                {
+                    Console.WriteLine("XXXXXXXXX");
                 }
                 else
                 {
@@ -104,18 +118,19 @@ namespace PadPS4
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            Joystick[] joystick = GetSticks();
+           // Joystick[] joystick = GetSticks();
         }
 
+        // obsluga pozycji kursora
         public void MouseMoves(int posx, int posy) {
             Cursor.Position = new Point(Cursor.Position.X + posx/3, Cursor.Position.Y + posy/3);
-            //Cursor.Clip = new Rectangle(this.Location, this.Size);
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
             for (int i = 0; i < sticks.Length; i++)
             {
+                Console.WriteLine(sticks.Length);
                 stickHandle(sticks[i], i);
             }
         }
