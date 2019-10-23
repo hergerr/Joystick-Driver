@@ -161,9 +161,12 @@ namespace PadPS4
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            if(rect != null)
+            if(rect != null && radioButton1.Checked)
             {
                 e.Graphics.DrawRectangle(Pens.Red, GetRect());
+            } else if (rect != null && radioButton2.Checked)
+            {
+                e.Graphics.DrawEllipse(Pens.Black, GetRect());
             }
         }
 
